@@ -205,6 +205,9 @@ func (t *Trending) GetProjects(time, language string) ([]Project, error) {
 
 		language := s.Find("div.f6 span").Eq(0).Text()
 		language = strings.TrimSpace(language)
+		if language == "Built by" {
+			language = ""
+		}
 
 		starsString := s.Find("div.f6 a").First().Text()
 		starsString = strings.TrimSpace(starsString)
@@ -215,7 +218,7 @@ func (t *Trending) GetProjects(time, language string) ([]Project, error) {
 			stars = 0
 		}
 
-		tfStarsString := s.Find("div.f6 span").Eq(4).Text()
+		tfStarsString := s.Find("div.f6 span").Last().Text()
 		tfStarsString = strings.TrimSpace(tfStarsString)
 		tfStarsStringSplitArr := strings.Fields(tfStarsString)
 		tfStarsString = tfStarsStringSplitArr[0]

@@ -80,9 +80,11 @@ type Project struct {
 	// Sometimes Language is an empty string, because Github can`t determine the (main) programing language (like for "google/deepdream").
 	Language string
 
-	// Stars is the number of github stars this project received in the given timeframe (see TimeToday / TimeWeek / TimeMonth constants).
-	// This number don`t reflect the overall stars of the project.
+	//overall stars
 	Stars int
+
+	// TimeframeStars is the number of github stars this project received in the given timeframe (see TimeToday / TimeWeek / TimeMonth constants).
+	TfStars int
 
 	// URL is the http(s) address of the project reflected as url.URL datastructure like "https://github.com/Workiva/go-datastructures".
 	URL *url.URL
@@ -201,7 +203,7 @@ func (t *Trending) GetProjects(time, language string) ([]Project, error) {
 		description := s.Find(".py-1 p").Text()
 		description = strings.TrimSpace(description)
 
-		language := s.Find("div.f6 span").Eq(1).Text()
+		language := s.Find("div.f6 span").Eq(0).Text()
 		language = strings.TrimSpace(language)
 
 		starsString := s.Find("div.f6 a").First().Text()
@@ -211,6 +213,17 @@ func (t *Trending) GetProjects(time, language string) ([]Project, error) {
 		stars, err := strconv.Atoi(starsString)
 		if err != nil {
 			stars = 0
+		}
+
+		tfStarsString := s.Find("div.f6 span").Eq(4).Text()
+		tfStarsString = strings.TrimSpace(tfStarsString)
+		tfStarsStringSplitArr := strings.Fields(tfStarsString)
+		tfStarsString = tfStarsStringSplitArr[0]
+		tfStarsString = strings.Replace(tfStarsString, ",", "", 1)
+		tfStarsString = strings.Replace(tfStarsString, ".", "", 1)
+		tfStars, err := strconv.Atoi(tfStarsString)
+		if err != nil {
+			tfStars = 0
 		}
 
 		contributerSelection := s.Find("div.f6 a").Eq(2)
@@ -236,6 +249,7 @@ func (t *Trending) GetProjects(time, language string) ([]Project, error) {
 			Description:    description,
 			Language:       language,
 			Stars:          stars,
+			TfStars:        tfStars,
 			URL:            projectURL,
 			ContributorURL: contributorURL,
 			Contributor:    developer,
